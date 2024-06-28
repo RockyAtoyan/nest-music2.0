@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Person {
+  id        String     @id @unique @default(uuid())
+  login     String
+  password  String
+  image     String
+  favs      String[]
+  playlists Playlist[]
+  songs     Song[]
+
+  subscribers Follow[] @relation("following")
+  subscribs   Follow[] @relation("subsribe")
+
+  lasts   Listen[]
+  listens Song[]   @relation("rating")
+  songId  String?
+}
+
+model Song {
+  id        String   @id @unique @default(uuid())
+  userid    String
+  file      String
+  title     String
+  author    String
+  image     String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  person       Person     @relation(fields: [userid], references: [id])
+  playlists    Playlist[] @relation("PlaylistToSong")
+  listens      Listen[]
+  usersListens Person[]   @relation("rating")
+}
+
+model Listen {
+  id        String   @id @unique @default(uuid())
+  userId    String
+  songId    String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  expires   DateTime
+
+  person Person @relation(fields: [userId], references: [id])
+  song   Song   @relation(fields: [songId], references: [id])
+}
+
+model Playlist {
+  id     String @id @unique @default(uuid())
+  title  String
+  userid String
+  image  String
+  author Person @relation(fields: [userid], references: [id])
+  songs  Song[] @relation("PlaylistToSong")
+}
+
+model Follow {
+  id           String @id @default(uuid())
+  subscriberId String
+  subscribedId String
+
+  subscriber Person @relation(name: "subsribe", fields: [subscriberId], references: [id])
+  subscribed Person @relation(name: "following", fields: [subscribedId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
