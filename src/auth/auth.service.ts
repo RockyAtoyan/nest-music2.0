@@ -11,6 +11,7 @@ import { compareSync, hashSync } from 'bcrypt';
 import { writeFile } from 'fs';
 import { LoginDto } from './dto/login.dto';
 import { LibService } from 'src/lib/lib.service';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private prisma: PrismaService,
     private lib: LibService,
     private userService: UserService,
+    private storage: StorageService,
   ) {}
 
   async registration(payload: RegistrationDto, file: Express.Multer.File) {
@@ -31,20 +33,19 @@ export class AuthService {
     }
     const hashPassword = hashSync(password, 7);
     const id = uuid();
+
+    let imageUrl: string | undefined;
+    if (file?.size) {
+      imageUrl = await this.createUserAvatar(file, id);
+    }
+
     try {
       const user = await this.userService.save({
         id,
         login,
         password: hashPassword,
-        image: file?.size
-          ? `http://localhost:5001/users-avatars/${id}.${
-              file?.originalname.split('.')[1]
-            }`
-          : '',
+        image: imageUrl || '',
       });
-      if (file && file?.originalname !== 'undefined') {
-        this.createUserAvatar(file, id);
-      }
       return user;
     } catch (error) {
       const err = error as Error;
@@ -103,14 +104,9 @@ export class AuthService {
   }
 
   private createUserAvatar(file: Express.Multer.File, id: string) {
-    const data = new Uint8Array(file.buffer);
-    writeFile(
-      `public/users-avatars/${id}.${file.originalname.split('.')[1]}`,
-      data,
-      function (err) {
-        if (err) throw err;
-        console.log('adding file complete');
-      },
+    return this.storage.uploadProfileImage(
+      file,
+      `${id}.${file.originalname.split('.')[1]}`,
     );
   }
 }

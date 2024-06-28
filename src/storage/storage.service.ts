@@ -71,17 +71,34 @@ export class StorageService implements OnModuleInit {
     }
   }
 
-  public async deleteSongFiles(songFileName: string, songImageName: string) {
+  public getSongFile(name: string) {
+    try {
+      const imageRef = ref(this.storage, this.songsImagesFolder + `/${name}`);
+      return getDownloadURL(imageRef);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  public async deleteSongFile(songFileName: string) {
+    try {
+      const fileRef = ref(
+        this.storage,
+        this.usersAvatarsFolder + `/${songFileName}`,
+      );
+      return deleteObject(fileRef);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async deleteSongImage(songImageName: string) {
     try {
       const imageRef = ref(
         this.storage,
         this.songsImagesFolder + `/${songImageName}`,
       );
-      const fileRef = ref(
-        this.storage,
-        this.usersAvatarsFolder + `/${songFileName}`,
-      );
-      return Promise.all([deleteObject(imageRef), deleteObject(fileRef)]);
+      return deleteObject(imageRef);
     } catch (error) {
       throw error;
     }

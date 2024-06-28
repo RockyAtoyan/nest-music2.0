@@ -9,12 +9,14 @@ import { v4 as uuid } from 'uuid';
 import { readFile, rename, unlink, writeFile } from 'fs';
 import { Prisma } from '@prisma/client';
 import { SocketService } from '../socket/socket.service';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class AudioService {
   constructor(
     private prisma: PrismaService,
     private socket: SocketService,
+    private storage: StorageService,
   ) {}
 
   async getSongById(id: string, include?: Prisma.SongInclude) {
@@ -94,25 +96,20 @@ export class AudioService {
       }
 
       const id = uuid();
-      this.createSongFile(file, userId, id);
 
+      const fileUrl = await this.createSongFile(file, userId, id);
+      let imageUrl: string | undefined;
       if (image.size) {
-        this.createSongImage(image, id);
+        imageUrl = await this.createSongImage(image, id);
       }
 
       const song = await this.prisma.song.create({
         data: {
           id,
           author,
-          file: `http://localhost:5001/users-songs/${
-            userId + '-' + id + '.mp3'
-          }`,
+          file: fileUrl,
           title,
-          image: image.size
-            ? `http://localhost:5001/songs-images/${
-                id + '.' + image.originalname.split('.')[1]
-              }`
-            : '',
+          image: imageUrl || '',
           userid: userId,
         },
         include: {
@@ -154,10 +151,10 @@ export class AudioService {
         throw new BadRequestException('Miss the field!');
       }
 
-      this.deleteSongFile(userId, id);
+      await this.deleteSongFile(userId, id);
 
       if (imageEtc) {
-        this.deleteSongImage(id, String(imageEtc));
+        await this.deleteSongImage(id, String(imageEtc));
       }
 
       const song = await this.prisma.song.delete({
@@ -210,16 +207,18 @@ export class AudioService {
     const serializedSongs = Array.isArray(songs) ? songs : JSON.parse(songs);
     if (!title) throw new BadRequestException('Bad request');
     const id = uuid();
+
+    let imageUrl: string | undefined;
+    if (image?.size) {
+      imageUrl = await this.createPlaylistImage(image, id);
+    }
+
     const playlist = await this.prisma.playlist.create({
       data: {
         id,
         title,
         userid: userId,
-        image: image?.size
-          ? `http://localhost:5001/playlists-images/${id}.${
-              image.originalname.split('.')[1]
-            }`
-          : '',
+        image: imageUrl || '',
         songs: {
           connect: serializedSongs,
         },
@@ -229,9 +228,6 @@ export class AudioService {
         author: true,
       },
     });
-    if (image?.size) {
-      this.createPlaylistImage(image, id);
-    }
     return playlist;
   }
 
@@ -293,7 +289,7 @@ export class AudioService {
     if (!id) throw new BadRequestException('Miss the field!');
 
     if (imageEtc) {
-      this.deletePlaylistImage(id, String(imageEtc));
+      await this.deletePlaylistImage(id, String(imageEtc));
     }
 
     const playlist = await this.prisma.playlist.delete({
@@ -394,86 +390,36 @@ export class AudioService {
     userId: string,
     songId: string,
   ) {
-    const data = new Uint8Array(file.buffer);
-    writeFile(
-      'public/users-songs/' + userId + '-' + songId + '.mp3',
-      data,
-      function (err) {
-        if (err) throw err;
-      },
-    );
+    return this.storage.uploadSongFile(file, userId + '-' + songId + '.mp3');
   }
 
   private createSongImage(file: Express.Multer.File, songId: string) {
-    const data = new Uint8Array(file.buffer);
-    writeFile(
-      'public/songs-images/' + songId + '.' + file.originalname.split('.')[1],
-      data,
-      function (err) {
-        if (err) throw err;
-      },
+    return this.storage.uploadSongFile(
+      file,
+      songId + '.' + file.originalname.split('.')[1],
     );
   }
 
   private deleteSongFile(userId: string, songId: string) {
-    unlink(`public/users-songs/${userId}-${songId}.mp3`, function (err) {
-      if (err && err.code == 'ENOENT') {
-        console.info("File doesn't exist, won't remove it.");
-      } else if (err) {
-        console.error('Error occurred while trying to remove file');
-      } else {
-        console.info(`removed`);
-      }
-    });
+    return this.storage.deleteSongFile(userId + '-' + songId + '.mp3');
   }
 
   private deleteSongImage(songId: string, imageEtc: string) {
-    unlink(`public/songs-images/${songId}.${imageEtc}`, function (err) {
-      if (err && err.code == 'ENOENT') {
-        console.info("File doesn't exist, won't remove it.");
-      } else if (err) {
-        console.error('Error occurred while trying to remove file');
-      } else {
-        console.info(`removed`);
-      }
-    });
+    return this.storage.deleteSongFile(songId + '.' + imageEtc);
   }
 
   private createPlaylistImage(file: Express.Multer.File, playlistId: string) {
-    const data = new Uint8Array(file.buffer);
-    writeFile(
-      'public/playlists-images/' +
-        playlistId +
-        '.' +
-        file.originalname.split('.')[1],
-      data,
-      function (err) {
-        if (err) throw err;
-      },
+    return this.storage.uploadPlaylistImage(
+      file,
+      playlistId + '.' + file.originalname.split('.')[1],
     );
   }
 
   private deletePlaylistImage(playlistId: string, imageEtc: string) {
-    unlink(`public/playlists-images/${playlistId}.${imageEtc}`, function (err) {
-      if (err && err.code == 'ENOENT') {
-        console.info("File doesn't exist, won't remove it.");
-      } else if (err) {
-        console.error('Error occurred while trying to remove file');
-      } else {
-        console.info(`removed`);
-      }
-    });
+    return this.storage.deletePlaylistImage(playlistId + '.' + imageEtc);
   }
 
   private async getSongImage(name: string) {
-    const path = 'public/users-songs/' + name;
-
-    const res = await new Promise((resolve) => {
-      readFile(path, { encoding: 'base64' }, (err, data) => {
-        resolve(data);
-      });
-    });
-
-    return res;
+    return this.storage.getSongFile(name);
   }
 }
