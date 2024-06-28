@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { AudioModule } from './audio/audio.module';
 import { SocketModule } from './socket/socket.module';
 import { StorageService } from './storage/storage.service';
+import { StorageModule } from './storage/storage.module';
 
 export const __dirname = resolve();
 
@@ -20,6 +21,7 @@ export const __dirname = resolve();
     }),
     AuthModule,
     LibModule,
+    StorageModule,
     PrismaModule,
     UserModule,
     AudioModule,
