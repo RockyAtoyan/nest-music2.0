@@ -9,6 +9,7 @@ import { PrismaModule } from './db/prisma.module';
 import { UserModule } from './user/user.module';
 import { AudioModule } from './audio/audio.module';
 import { SocketModule } from './socket/socket.module';
+import { StorageService } from './storage/storage.service';
 
 export const __dirname = resolve();
 
@@ -25,6 +26,6 @@ export const __dirname = resolve();
     SocketModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, StorageService],
 })
 export class AppModule {}
