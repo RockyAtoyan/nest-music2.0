@@ -151,17 +151,17 @@ export class AudioService {
         throw new BadRequestException('Miss the field!');
       }
 
-      await this.deleteSongFile(userId, id);
-
-      if (imageEtc) {
-        await this.deleteSongImage(id, String(imageEtc));
-      }
-
       const song = await this.prisma.song.delete({
         where: {
           id,
         },
       });
+
+      await this.deleteSongFile(song.file);
+
+      if (song.image) {
+        await this.deleteSongImage(song.image);
+      }
 
       if (!song) throw new BadRequestException('Bad data');
 
@@ -288,10 +288,6 @@ export class AudioService {
   async deletePlaylist(userId: string, id: string, imageEtc: string) {
     if (!id) throw new BadRequestException('Miss the field!');
 
-    if (imageEtc) {
-      await this.deletePlaylistImage(id, String(imageEtc));
-    }
-
     const playlist = await this.prisma.playlist.delete({
       where: { id },
       include: {
@@ -299,6 +295,10 @@ export class AudioService {
         author: true,
       },
     });
+
+    if (playlist.image) {
+      await this.deletePlaylistImage(playlist.image);
+    }
 
     if (!playlist) throw new BadRequestException('Bad data!');
 
@@ -394,18 +394,18 @@ export class AudioService {
   }
 
   private createSongImage(file: Express.Multer.File, songId: string) {
-    return this.storage.uploadSongFile(
+    return this.storage.uploadSongImage(
       file,
       songId + '.' + file.originalname.split('.')[1],
     );
   }
 
-  private deleteSongFile(userId: string, songId: string) {
-    return this.storage.deleteSongFile(userId + '-' + songId + '.mp3');
+  private deleteSongFile(url: string) {
+    return this.storage.deleteSongFile(url);
   }
 
-  private deleteSongImage(songId: string, imageEtc: string) {
-    return this.storage.deleteSongFile(songId + '.' + imageEtc);
+  private deleteSongImage(url) {
+    return this.storage.deleteSongImage(url);
   }
 
   private createPlaylistImage(file: Express.Multer.File, playlistId: string) {
@@ -415,8 +415,8 @@ export class AudioService {
     );
   }
 
-  private deletePlaylistImage(playlistId: string, imageEtc: string) {
-    return this.storage.deletePlaylistImage(playlistId + '.' + imageEtc);
+  private deletePlaylistImage(url: string) {
+    return this.storage.deletePlaylistImage(url);
   }
 
   private async getSongImage(name: string) {

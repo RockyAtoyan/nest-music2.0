@@ -52,8 +52,8 @@ model Listen {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   expires   DateTime
 
-  person Person @relation(fields: [userId], references: [id])
-  song   Song   @relation(fields: [songId], references: [id])
+  person Person @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song   Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
 }
 
 model Playlist {

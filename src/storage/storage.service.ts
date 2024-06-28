@@ -42,9 +42,9 @@ export class StorageService implements OnModuleInit {
     }
   }
 
-  public async deleteProfileImage(name: string) {
+  public async deleteProfileImage(url: string) {
     try {
-      const imageRef = ref(this.storage, this.usersAvatarsFolder + `/${name}`);
+      const imageRef = ref(this.storage, url);
       return deleteObject(imageRef);
     } catch (error) {
       throw error;
@@ -73,31 +73,25 @@ export class StorageService implements OnModuleInit {
 
   public getSongFile(name: string) {
     try {
-      const imageRef = ref(this.storage, this.songsImagesFolder + `/${name}`);
+      const imageRef = ref(this.storage, this.usersSongsFolder + `/${name}`);
       return getDownloadURL(imageRef);
     } catch (error) {
       return null;
     }
   }
 
-  public async deleteSongFile(songFileName: string) {
+  public async deleteSongFile(url: string) {
     try {
-      const fileRef = ref(
-        this.storage,
-        this.usersAvatarsFolder + `/${songFileName}`,
-      );
+      const fileRef = ref(this.storage, url);
       return deleteObject(fileRef);
     } catch (error) {
       throw error;
     }
   }
 
-  public async deleteSongImage(songImageName: string) {
+  public async deleteSongImage(url: string) {
     try {
-      const imageRef = ref(
-        this.storage,
-        this.songsImagesFolder + `/${songImageName}`,
-      );
+      const imageRef = ref(this.storage, url);
       return deleteObject(imageRef);
     } catch (error) {
       throw error;
@@ -117,9 +111,9 @@ export class StorageService implements OnModuleInit {
     }
   }
 
-  public async deletePlaylistImage(name) {
+  public async deletePlaylistImage(url: string) {
     try {
-      const imageRef = ref(this.storage, this.usersAvatarsFolder + `/${name}`);
+      const imageRef = ref(this.storage, url);
       return deleteObject(imageRef);
     } catch (error) {
       throw error;
