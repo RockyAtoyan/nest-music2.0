@@ -1,7 +1,7 @@
-import { initializeApp } from 'firebase/app';
+import { FirebaseOptions, initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
 
-const firebaseConfig = {
+const firebaseConfig: FirebaseOptions = {
   apiKey: 'AIzaSyBKQxxYKX1Xamh0SCdgnlMYpwwCAUEIQ8I',
   authDomain: 'music2-storage-debc4.firebaseapp.com',
   projectId: 'music2-storage-debc4',
