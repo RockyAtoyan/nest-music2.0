@@ -171,6 +171,7 @@ export class UserService {
         },
         playlists: {
           include: {
+            author: true,
             songs: {
               orderBy: {
                 createdAt: 'desc',
