@@ -168,7 +168,11 @@ export class UserService {
           include: {
             subscribed: {
               include: {
-                lasts: true,
+                lasts: {
+                  include: {
+                    song: true,
+                  },
+                },
               },
             },
           },
