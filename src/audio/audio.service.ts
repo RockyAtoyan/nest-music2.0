@@ -39,7 +39,6 @@ export class AudioService {
       size: size ? +size : 5,
       search: search ? String(search) : '',
     };
-
     try {
       const songs = await this.prisma.song.findMany({
         where: {
@@ -54,9 +53,10 @@ export class AudioService {
         },
         skip: options.page * options.size,
         take: options.size,
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy:
+          sortBy === 'listens'
+            ? [{ usersListens: { _count: 'desc' } }]
+            : { createdAt: 'desc' },
       });
 
       const total = await this.prisma.song.count({
