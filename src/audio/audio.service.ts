@@ -252,9 +252,18 @@ export class AudioService {
       },
       skip: options.page * options.size,
       take: options.size,
-      orderBy: {
-        title: 'desc',
-      },
+      orderBy:
+        sortBy === 'popular'
+          ? {
+              author: {
+                subscribers: {
+                  _count: 'desc',
+                },
+              },
+            }
+          : {
+              title: 'desc',
+            },
       include: {
         songs: true,
         author: true,
