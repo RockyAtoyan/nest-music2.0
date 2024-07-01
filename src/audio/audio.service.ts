@@ -51,6 +51,9 @@ export class AudioService {
             },
           ],
         },
+        include: {
+          person: true,
+        },
         skip: options.page * options.size,
         take: options.size,
         orderBy:
