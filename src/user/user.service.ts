@@ -155,10 +155,17 @@ export class UserService {
           orderBy: {
             createdAt: 'desc',
           },
+          include: {
+            person: true,
+          },
         },
         lasts: {
           include: {
-            song: true,
+            song: {
+              include: {
+                person: true,
+              },
+            },
           },
           orderBy: {
             createdAt: 'desc',
@@ -170,7 +177,11 @@ export class UserService {
               include: {
                 lasts: {
                   include: {
-                    song: true,
+                    song: {
+                      include: {
+                        person: true,
+                      },
+                    },
                   },
                 },
               },
@@ -183,6 +194,9 @@ export class UserService {
             songs: {
               orderBy: {
                 createdAt: 'desc',
+              },
+              include: {
+                person: true,
               },
             },
           },
