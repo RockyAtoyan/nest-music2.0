@@ -120,6 +120,7 @@ export class AudioService {
                   subscriber: {
                     select: {
                       id: true,
+                      login: true,
                     },
                   },
                 },
@@ -130,6 +131,20 @@ export class AudioService {
       });
 
       if (!song) return { message: 'Bad data' };
+      for (let i = 0; i < song.person.subscribers.length; i++) {
+        const { subscriber: sub } = song.person.subscribers[i];
+        const notification = await this.prisma.notification.create({
+          data: {
+            link: `/profile/${song.person.id}`,
+            text: `New audio from ${song.person.login}!`,
+            person: {
+              connect: {
+                id: sub.id,
+              },
+            },
+          },
+        });
+      }
       this.socket.sendMessage(
         {
           type: 'message',

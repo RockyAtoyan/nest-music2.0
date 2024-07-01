@@ -187,6 +187,11 @@ export class UserService {
             },
           },
         },
+        notifications: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       });
       return user;
     } catch (error) {
@@ -270,6 +275,17 @@ export class UserService {
         },
         [id],
       );
+      const notification = await this.prisma.notification.create({
+        data: {
+          link: `/profile/${follow.subscriber.id}`,
+          text: `${follow.subscriber.login} is following you now!`,
+          person: {
+            connect: {
+              id,
+            },
+          },
+        },
+      });
       return { followData: follow, userId: authUser.id };
     } catch (e) {
       const err = e as Error;

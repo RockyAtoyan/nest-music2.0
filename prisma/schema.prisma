@@ -28,6 +28,8 @@ model Person {
   lasts   Listen[]
   listens Song[]   @relation("rating")
   songId  String?
+
+  notifications Notification[]
 }
 
 model Song {
@@ -75,4 +77,14 @@ model Follow {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  link      String?
+  text      String
+  userId    String
+  person    Person   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires   DateTime @default(dbgenerated("NOW() + interval '1 day'"))
+  createdAt DateTime @default(now())
 }

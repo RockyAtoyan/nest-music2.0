@@ -82,11 +82,25 @@ export class AuthService {
 
   async auth(user: { id: string; login: string }) {
     try {
-      const authUser = await this.userService.getUserById(user.id);
+      const authUser = await this.userService.getUserById(user.id, {
+        notifications: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      });
       if (!authUser) {
         throw new UnauthorizedException();
       }
       await this.prisma.listen.deleteMany({
+        where: {
+          userId: authUser.id,
+          expires: {
+            lte: new Date(),
+          },
+        },
+      });
+      await this.prisma.notification.deleteMany({
         where: {
           userId: authUser.id,
           expires: {
