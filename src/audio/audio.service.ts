@@ -283,7 +283,11 @@ export class AudioService {
               title: 'desc',
             },
       include: {
-        songs: true,
+        songs: {
+          include: {
+            person: true,
+          },
+        },
         author: true,
       },
     });
@@ -304,7 +308,11 @@ export class AudioService {
     const playlist = await this.prisma.playlist.findUnique({
       where: { id },
       include: {
-        songs: true,
+        songs: {
+          include: {
+            person: true,
+          },
+        },
         author: true,
       },
     });
