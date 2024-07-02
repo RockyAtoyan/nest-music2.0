@@ -12,6 +12,7 @@ import { writeFile } from 'fs';
 import { LoginDto } from './dto/login.dto';
 import { LibService } from 'src/lib/lib.service';
 import { StorageService } from 'src/storage/storage.service';
+import { EditDto } from './dto/edit.dto';
 
 @Injectable()
 export class AuthService {
@@ -80,6 +81,57 @@ export class AuthService {
     }
   }
 
+  async editProfile(payload: EditDto, id: string) {
+    const { login, password } = payload;
+    const user = await this.userService.getUserById(id);
+    if (!user) {
+      throw new BadRequestException('User with this login is not exist');
+    }
+    try {
+      const editedUser = await this.prisma.person.update({
+        where: { id },
+        data: {
+          login: login || user.login,
+          password: password ? hashSync(password, 7) : user.password,
+        },
+      });
+      return editedUser;
+    } catch (error) {
+      const err = error as Error;
+      console.log(err.message);
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  async editProfileImage(file: Express.Multer.File, id: string) {
+    const user = await this.userService.getUserById(id);
+    if (!user) {
+      throw new BadRequestException('User with this login is not exist');
+    }
+    if (!file) {
+      throw new BadRequestException('No file!');
+    }
+    try {
+      let image;
+      if (user.image) {
+        image = await this.changeUserAvatar(file, user.image);
+      } else {
+        image = await this.createUserAvatar(file, id);
+      }
+      const editedUser = await this.prisma.person.update({
+        where: { id },
+        data: {
+          image: image || '',
+        },
+      });
+      return editedUser;
+    } catch (error) {
+      const err = error as Error;
+      console.log(err.message);
+      throw new BadRequestException(err.message);
+    }
+  }
+
   async auth(user: { id: string; login: string }) {
     try {
       const authUser = await this.userService.getUserById(user.id, {
@@ -122,5 +174,9 @@ export class AuthService {
       file,
       `${id}.${file.originalname.split('.')[1]}`,
     );
+  }
+
+  private changeUserAvatar(file: Express.Multer.File, url: string) {
+    return this.storage.changeProfileImage(file, url);
   }
 }

@@ -6,7 +6,6 @@ import {
   uploadBytes,
   deleteObject,
   getDownloadURL,
-  
 } from 'firebase/storage';
 
 @Injectable()
@@ -32,9 +31,9 @@ export class StorageService implements OnModuleInit {
     }
   }
 
-  public async changeProfileImage(file: Express.Multer.File, name: string) {
+  public async changeProfileImage(file: Express.Multer.File, url: string) {
     try {
-      const imageRef = ref(this.storage, this.usersAvatarsFolder + `/${name}`);
+      const imageRef = ref(this.storage, url);
       await deleteObject(imageRef);
       await uploadBytes(imageRef, file.buffer);
       return getDownloadURL(imageRef);
