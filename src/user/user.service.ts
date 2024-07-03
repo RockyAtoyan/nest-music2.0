@@ -69,7 +69,7 @@ export class UserService {
     skip: number,
     take: number,
     orderBy: Object,
-    include?: Object,
+    include?: Prisma.PersonInclude,
   ) {
     return this.prisma.person.findMany({
       where: {
@@ -78,6 +78,7 @@ export class UserService {
       skip,
       take,
       orderBy,
+      include,
     });
   }
 
@@ -146,6 +147,15 @@ export class UserService {
               },
             ]
           : orderBy,
+        {
+          _count: {
+            select: {
+              subscribers: true,
+            },
+          },
+          songs: true,
+          playlists: true,
+        },
       );
 
       const total = await this.countUsers({
