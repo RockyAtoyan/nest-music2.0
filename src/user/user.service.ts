@@ -206,6 +206,8 @@ export class UserService {
           include: {
             subscribed: {
               include: {
+                songs: true,
+                playlists: true,
                 lasts: {
                   include: {
                     song: {
@@ -220,6 +222,9 @@ export class UserService {
           },
         },
         playlists: {
+          orderBy: {
+            createdAt: 'desc',
+          },
           include: {
             author: true,
             songs: {

@@ -261,6 +261,49 @@ export class AudioService {
     return playlist;
   }
 
+  async editPlaylist(
+    id: string,
+    payload: { title: string; songs: string[] },
+    image: Express.Multer.File,
+  ) {
+    const { title, songs } = payload;
+    const serializedSongs = Array.isArray(songs) ? songs : JSON.parse(songs);
+    if (!title) throw new BadRequestException('Bad request');
+    const playlist = await this.prisma.playlist.findUnique({
+      where: { id },
+      include: {
+        songs: true,
+      },
+    });
+    if (!playlist) throw new NotFoundException();
+    let imageUrl: string | undefined;
+    if (image?.size) {
+      if (playlist.image) {
+        imageUrl = await this.changePlaylistImage(image, playlist.image);
+      } else {
+        imageUrl = await this.createPlaylistImage(image, playlist.id);
+      }
+    }
+
+    const editedPlaylist = await this.prisma.playlist.update({
+      where: { id },
+      data: {
+        id,
+        title,
+        image: imageUrl || playlist.image,
+        songs: {
+          disconnect: playlist.songs,
+          connect: serializedSongs,
+        },
+      },
+      include: {
+        songs: true,
+        author: true,
+      },
+    });
+    return editedPlaylist;
+  }
+
   async getPlaylists(
     query: {
       size?: string;
@@ -464,6 +507,10 @@ export class AudioService {
       file,
       playlistId + '.' + file.originalname.split('.')[1],
     );
+  }
+
+  private changePlaylistImage(file: Express.Multer.File, url: string) {
+    return this.storage.changeProfileImage(file, url);
   }
 
   private deletePlaylistImage(url: string) {

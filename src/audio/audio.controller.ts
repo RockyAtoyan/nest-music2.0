@@ -61,6 +61,17 @@ export class AudioController {
   }
 
   @UseGuards(AuthGuard)
+  @Put('/playlist/:id')
+  @UseInterceptors(FileInterceptor('image'))
+  editPlaylist(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id,
+    @Body() body,
+  ) {
+    return this.audioService.editPlaylist(id, body, file);
+  }
+
+  @UseGuards(AuthGuard)
   @Post('/songs')
   @UseInterceptors(
     FileFieldsInterceptor([

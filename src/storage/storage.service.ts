@@ -111,6 +111,17 @@ export class StorageService implements OnModuleInit {
     }
   }
 
+  public async changePlaylistImage(file: Express.Multer.File, url: string) {
+    try {
+      const imageRef = ref(this.storage, url);
+      await deleteObject(imageRef);
+      await uploadBytes(imageRef, file.buffer);
+      return getDownloadURL(imageRef);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   public async deletePlaylistImage(url: string) {
     try {
       const imageRef = ref(this.storage, url);
