@@ -59,12 +59,13 @@ model Listen {
 }
 
 model Playlist {
-  id     String @id @unique @default(uuid())
-  title  String
-  userid String
-  image  String
-  author Person @relation(fields: [userid], references: [id])
-  songs  Song[] @relation("PlaylistToSong")
+  id        String   @id @unique @default(uuid())
+  title     String
+  userid    String
+  image     String
+  author    Person   @relation(fields: [userid], references: [id])
+  songs     Song[]   @relation("PlaylistToSong")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
 }
 
 model Follow {

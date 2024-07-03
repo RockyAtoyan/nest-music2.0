@@ -29,7 +29,7 @@ export class AudioService {
     query: {
       size?: string;
       search?: string;
-      sortBy?: string;
+      sortBy?: 'listens' | 'name' | 'old' | 'new';
     },
     page: string,
   ) {
@@ -39,6 +39,21 @@ export class AudioService {
       size: size ? +size : 5,
       search: search ? String(search) : '',
     };
+    let orderBy:
+      | Prisma.SongOrderByWithRelationInput
+      | Prisma.SongOrderByWithRelationInput[] = {};
+    if (sortBy === 'listens') {
+      orderBy = { usersListens: { _count: 'desc' } };
+    }
+    if (sortBy === 'name') {
+      orderBy = { title: 'asc' };
+    }
+    if (sortBy === 'new') {
+      orderBy = { createdAt: 'desc' };
+    }
+    if (sortBy === 'old') {
+      orderBy = { createdAt: 'asc' };
+    }
     try {
       const songs = await this.prisma.song.findMany({
         where: {
@@ -56,10 +71,7 @@ export class AudioService {
         },
         skip: options.page * options.size,
         take: options.size,
-        orderBy:
-          sortBy === 'listens'
-            ? [{ usersListens: { _count: 'desc' } }]
-            : { createdAt: 'desc' },
+        orderBy,
       });
 
       const total = await this.prisma.song.count({
@@ -253,7 +265,7 @@ export class AudioService {
     query: {
       size?: string;
       search?: string;
-      sortBy?: string;
+      sortBy?: 'popular' | 'old' | 'new' | 'name';
     },
     params: { page: string },
   ) {
@@ -264,24 +276,28 @@ export class AudioService {
       size: size ? +size : 5,
       search: search ? String(search) : '',
     };
+    let orderBy:
+      | Prisma.PlaylistOrderByWithRelationInput
+      | Prisma.PlaylistOrderByWithRelationInput[] = {};
+    if (sortBy === 'popular') {
+      orderBy = { author: { subscribers: { _count: 'desc' } } };
+    }
+    if (sortBy === 'name') {
+      orderBy = { title: 'asc' };
+    }
+    if (sortBy === 'new') {
+      orderBy = { createdAt: 'desc' };
+    }
+    if (sortBy === 'old') {
+      orderBy = { createdAt: 'asc' };
+    }
     const playlists = await this.prisma.playlist.findMany({
       where: {
         OR: [{ title: { contains: options.search } }],
       },
       skip: options.page * options.size,
       take: options.size,
-      orderBy:
-        sortBy === 'popular'
-          ? {
-              author: {
-                subscribers: {
-                  _count: 'desc',
-                },
-              },
-            }
-          : {
-              title: 'desc',
-            },
+      orderBy,
       include: {
         songs: {
           include: {

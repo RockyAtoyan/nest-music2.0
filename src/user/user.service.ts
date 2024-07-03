@@ -92,7 +92,7 @@ export class UserService {
       size?: string;
       search?: string;
       recommended?: string;
-      sortBy?: string;
+      sortBy?: 'popular' | 'name-asc' | 'name-desc';
     },
     params: { page: string },
   ) {
@@ -104,6 +104,27 @@ export class UserService {
       search: search ? String(search) : '',
       recommended: recommended ? JSON.parse(String(recommended)) : false,
     };
+    let orderBy:
+      | Prisma.PersonOrderByWithRelationInput
+      | Prisma.PersonOrderByWithRelationInput[] = {};
+    if (sortBy === 'popular') {
+      orderBy = [
+        {
+          subscribers: {
+            _count: 'desc',
+          },
+        },
+        {
+          login: 'desc',
+        },
+      ];
+    }
+    if (sortBy === 'name-asc') {
+      orderBy = { login: 'asc' };
+    }
+    if (sortBy === 'name-desc') {
+      orderBy = { login: 'desc' };
+    }
     try {
       const users = await this.getAll(
         [
@@ -124,7 +145,7 @@ export class UserService {
                 login: 'desc',
               },
             ]
-          : {},
+          : orderBy,
       );
 
       const total = await this.countUsers({
