@@ -28,7 +28,7 @@
     "@nestjs/platform-socket.io": "^10.3.3",
     "@nestjs/serve-static": "^4.0.1",
     "@nestjs/websockets": "^10.3.3",
-    "@prisma/client": "^5.10.2",
+    "@prisma/client": "^5.20.0",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/uuid": "^9.0.8",
@@ -37,7 +37,7 @@
     "class-validator": "^0.14.1",
     "firebase": "^10.12.2",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^5.10.2",
+    "prisma": "^5.20.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "uuid": "^9.0.1"
