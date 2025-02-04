@@ -2,10 +2,8 @@ import { Injectable } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
 } from '@nestjs/websockets';
 
 @Injectable()
@@ -13,6 +11,8 @@ import {
   cors: {
     origin: '*',
   },
+  namespace: '/server/ws',
+  // path: '/server/ws/socket.io',
 })
 export class SocketService implements OnGatewayConnection, OnGatewayDisconnect {
   private clients = [];
@@ -31,7 +31,9 @@ export class SocketService implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  handleConnection(client) {}
+  handleConnection(client) {
+    console.log('connection', client.id);
+  }
 
   handleDisconnect(client: any): any {
     this.clients = this.clients.filter((c) => c.socket.id !== client.id);
