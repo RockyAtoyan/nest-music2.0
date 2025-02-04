@@ -11,7 +11,7 @@ import {
   cors: {
     origin: '*',
   },
-  namespace: '/server/ws',
+  namespace: '/server',
   // path: '/server/ws/socket.io',
 })
 export class SocketService implements OnGatewayConnection, OnGatewayDisconnect {
