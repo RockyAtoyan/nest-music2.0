@@ -12,7 +12,7 @@ import {
     origin: '*',
   },
   namespace: '/server',
-  // path: '/server/ws/socket.io',
+  path: '/server/ws',
 })
 export class SocketService implements OnGatewayConnection, OnGatewayDisconnect {
   private clients = [];
