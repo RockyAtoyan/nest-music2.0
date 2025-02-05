@@ -12,7 +12,7 @@ async function bootstrap() {
       'http://localhost:3000',
       'https://music2-0-black.vercel.app',
       'https://rockyatoyan-musichub.vercel.app',
-      'http://rockyatoyan',
+      'https://atoyanmusichub.ru',
     ],
   });
   app.useGlobalPipes(new ValidationPipe());
