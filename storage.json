@@ -1,0 +1,12 @@
+[
+  {
+    "origin": [
+      "http://localhost:3000",
+      "https://music2-0-black.vercel.app",
+      "https://rockyatoyan-musichub.vercel.app",
+      "https://atoyanmusichub.ru"
+    ],
+    "method": ["GET"],
+    "maxAgeSeconds": 3600
+  }
+]
