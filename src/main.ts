@@ -13,6 +13,7 @@ async function bootstrap() {
       'https://music2-0-black.vercel.app',
       'https://rockyatoyan-musichub.vercel.app',
       'https://atoyanmusichub.ru',
+      'https://www.atoyanmusichub.ru',
     ],
   });
   app.useGlobalPipes(new ValidationPipe());
