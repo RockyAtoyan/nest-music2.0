@@ -60,7 +60,7 @@ export class SocketService implements OnGatewayConnection, OnGatewayDisconnect {
     this.clients.forEach(({ id, socket }) => {
       if (clients) {
         if (clients.includes(id)) {
-          socket.emit('message', JSON.stringify(msg));
+          socket.emit('message', JSON.stringify({ ...msg, userId: id }));
         }
       } else {
         socket.emit('message', JSON.stringify(msg));
