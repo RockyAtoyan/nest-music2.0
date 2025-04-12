@@ -10,6 +10,7 @@ async function bootstrap() {
     credentials: true,
     origin: [
       'http://localhost:3000',
+      'http://localhost:3001',
       'https://music2-0-black.vercel.app',
       'https://rockyatoyan-musichub.vercel.app',
       'https://atoyanmusichub.ru',
